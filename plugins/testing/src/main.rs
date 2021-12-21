@@ -2,11 +2,11 @@ use std::error::Error;
 use std::fs;
 use std::io::{self, BufRead};
 use std::path::Path;
-use std::process::{Command, Child, Stdio};
+use std::process::{Child, Command, Stdio};
 
 use serde_json::json;
 use tempdir::TempDir;
-use tokio::time::{Duration, sleep};
+use tokio::time::{sleep, Duration};
 use tonic::transport::Endpoint;
 
 struct Server {
@@ -61,7 +61,12 @@ fn populate_plugins(plugins_dest_path: &Path) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-async fn run_test(client: &mut indradb_proto::Client, name: &str, arg: serde_json::Value, expected_response: serde_json::Value) -> Result<(), Box<dyn Error>> {
+async fn run_test(
+    client: &mut indradb_proto::Client,
+    name: &str,
+    arg: serde_json::Value,
+    expected_response: serde_json::Value,
+) -> Result<(), Box<dyn Error>> {
     let response = client.execute_plugin(name.to_string(), arg).await?;
     assert_eq!(response, expected_response);
     Ok(())
@@ -79,7 +84,7 @@ async fn run_all_tests(plugins_path: &str) -> Result<(), Box<dyn Error>> {
             Ok(_) => {
                 last_err = None;
                 break;
-            },
+            }
             Err(err) => {
                 last_err = Some(err);
                 eprintln!("waiting for server [{}]", i + 1);
@@ -88,10 +93,16 @@ async fn run_all_tests(plugins_path: &str) -> Result<(), Box<dyn Error>> {
     }
     if let Some(err) = last_err {
         eprintln!("server failed to start after a few seconds");
-        return Err(Box::new(err))
+        return Err(Box::new(err));
     }
 
-    run_test(&mut client, "hello_world", json!("plugin tester"), json!("hello, \"plugin tester\"")).await?;
+    run_test(
+        &mut client,
+        "hello_world",
+        json!("plugin tester"),
+        json!("hello, \"plugin tester\""),
+    )
+    .await?;
 
     Ok(())
 }
