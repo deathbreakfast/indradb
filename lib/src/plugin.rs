@@ -46,6 +46,7 @@ macro_rules! register_plugins {
             )*
             PluginDeclaration {
                 version_info: indradb::plugin::VersionInfo {
+                    // TODO: ensure env! executes at macro expansion time
                     rustc: env!("RUSTC_VERSION").to_string(),
                     core: env!("CARGO_PKG_VERSION").to_string(),
                 },
