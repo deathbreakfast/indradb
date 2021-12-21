@@ -4,6 +4,7 @@ use std::io::{self, BufRead};
 use std::path::Path;
 use std::process::{Command, Child, Stdio};
 
+use serde_json::json;
 use tempdir::TempDir;
 use tokio::time::{Duration, sleep};
 use tonic::transport::Endpoint;
@@ -90,7 +91,7 @@ async fn run_all_tests(plugins_path: &str) -> Result<(), Box<dyn Error>> {
         return Err(Box::new(err))
     }
 
-    run_test(&mut client, "hello_world", serde_json::Value::Null, serde_json::Value::Null).await?;
+    run_test(&mut client, "hello_world", json!("plugin tester"), json!("hello, \"plugin tester\"")).await?;
 
     Ok(())
 }
