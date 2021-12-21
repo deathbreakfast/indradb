@@ -159,11 +159,10 @@ impl Client {
     }
 
     pub async fn index_property(&mut self, name: indradb::Identifier) -> Result<(), ClientError> {
-        self.0
-            .index_property(Request::new(crate::IndexPropertyRequest {
-                name: Some(name.into()),
-            }))
-            .await?;
+        let request = Request::new(crate::IndexPropertyRequest {
+            name: Some(name.into()),
+        });
+        self.0.index_property(request).await?;
         Ok(())
     }
 
@@ -172,13 +171,11 @@ impl Client {
         name: String,
         arg: serde_json::Value,
     ) -> Result<serde_json::Value, ClientError> {
-        let response = self
-            .0
-            .execute_plugin(Request::new(crate::ExecutePluginRequest {
-                name,
-                arg: Some(arg.into()),
-            }))
-            .await?;
+        let request = Request::new(crate::ExecutePluginRequest {
+            name,
+            arg: Some(arg.into()),
+        });
+        let response = self.0.execute_plugin(request).await?;
         match response.into_inner().value {
             Some(value) => Ok(value.try_into()?),
             None => Ok(serde_json::Value::Null),
